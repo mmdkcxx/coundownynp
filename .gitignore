@@ -1,2 +1,1 @@
-photos/*
-!photos/.gitkeep
+# add large files to ignore if needed later

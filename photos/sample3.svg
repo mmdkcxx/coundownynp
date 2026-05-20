@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="sunset" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a3a6a"/>
+      <stop offset="50%" stop-color="#1565c0"/>
+      <stop offset="100%" stop-color="#0d47a1"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#sunset)"/>
+  <circle cx="200" cy="160" r="50" fill="#fff9c4" opacity="0.15"/>
+  <circle cx="200" cy="160" r="35" fill="#ffe082" opacity="0.25"/>
+  <text x="200" y="175" font-family="sans-serif" font-size="48" text-anchor="middle">✝️</text>
+  <rect x="20" y="280" width="360" height="2" fill="white" opacity="0.15"/>
+  <text x="200" y="320" font-family="sans-serif" font-size="20" fill="white" text-anchor="middle" opacity="0.9">Fellowship in Christ</text>
+  <text x="200" y="348" font-family="sans-serif" font-size="15" fill="#90caf9" text-anchor="middle" opacity="0.8">Short Escape Core Y&amp;P</text>
+  <text x="200" y="374" font-family="sans-serif" font-size="13" fill="#64b5f6" text-anchor="middle" opacity="0.7">May 30 – Jun 1, 2026</text>
+</svg>
