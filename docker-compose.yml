@@ -1,0 +1,8 @@
+services:
+  countdown:
+    build: .
+    ports:
+      - "3226:80"
+    restart: always
+    volumes:
+      - ./photos:/usr/share/nginx/html/photos
