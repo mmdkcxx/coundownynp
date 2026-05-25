@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spin The Wheel — Short Escape Core Y&P</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Titan+One&family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{
+      min-height:100dvh;font-family:'Caveat',cursive;overflow-x:hidden;
+      background:linear-gradient(-38deg,#1a5ca8,#0d3a7a,#1565c0,#1a3f7c,#0f4c9e,#1d62b0);
+      background-size:400% 400%;animation:bg-drift 20s ease infinite;
+    }
+    @keyframes bg-drift{0%{background-position:0% 50%;}50%{background-position:100% 50%;}100%{background-position:0% 50%;}}
+    body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+      background-image:repeating-linear-gradient(135deg,transparent 0,transparent 5px,rgba(255,255,255,.022) 5px,rgba(255,255,255,.022) 6px),
+        repeating-linear-gradient(45deg,transparent 0,transparent 5px,rgba(0,0,0,.03) 5px,rgba(0,0,0,.03) 6px);}
+    #bg-canvas{position:fixed;inset:0;z-index:1;pointer-events:none;}
+    #confetti-canvas{position:fixed;inset:0;z-index:300;pointer-events:none;}
+
+    /* PAGE */
+    .sw-page{position:relative;z-index:10;min-height:100dvh;display:flex;flex-direction:column;}
+
+    /* HEADER */
+    .sw-header{
+      background:rgba(8,22,60,0.88);backdrop-filter:blur(14px);
+      border-bottom:1px solid rgba(255,255,255,0.1);
+      padding:0 28px;height:58px;display:flex;align-items:center;justify-content:space-between;
+      position:sticky;top:0;z-index:200;flex-shrink:0;
+    }
+    .sw-back{
+      font-family:'Caveat',cursive;font-size:1rem;color:rgba(255,255,255,.7);
+      text-decoration:none;display:flex;align-items:center;gap:5px;
+      padding:5px 12px;border-radius:4px;background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.14);transition:all .2s;
+    }
+    .sw-back:hover{color:#fff;background:rgba(255,255,255,.15);}
+    .sw-htitle{
+      font-family:'Titan One',cursive;font-size:1.25rem;color:#fff;
+      letter-spacing:2px;text-transform:uppercase;text-shadow:0 2px 8px rgba(0,0,0,.4);
+      position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;
+    }
+    .sw-admin-btn{
+      font-family:'Caveat',cursive;font-size:.9rem;color:rgba(255,255,255,.55);
+      background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);
+      padding:5px 14px;border-radius:4px;cursor:pointer;transition:all .2s;
+      display:flex;align-items:center;gap:5px;
+    }
+    .sw-admin-btn:hover{color:#fff;background:rgba(255,255,255,.14);}
+
+    /* LAYOUT */
+    .sw-main{
+      flex:1;width:100%;
+      padding:22px 28px 40px;
+      display:grid;grid-template-columns:260px 1fr 300px;gap:22px;align-items:start;
+    }
+
+    /* ─── PAPER CARD ─── */
+    .pc{
+      background:#fffef7;
+      box-shadow:4px 5px 18px rgba(0,0,0,.34),0 2px 4px rgba(0,0,0,.18);
+      position:relative;overflow:visible;
+    }
+    .pc::after{
+      content:'';position:absolute;bottom:-11px;left:0;right:0;height:13px;background:#fffef7;
+      clip-path:polygon(0% 0%,2% 100%,4% 20%,6% 100%,9% 30%,12% 100%,15% 10%,18% 100%,21% 40%,24% 100%,27% 15%,30% 100%,33% 35%,37% 100%,40% 10%,43% 100%,46% 45%,50% 100%,53% 15%,57% 100%,60% 30%,63% 100%,66% 20%,70% 100%,73% 40%,76% 100%,79% 15%,82% 100%,85% 35%,88% 100%,91% 20%,94% 100%,97% 30%,100% 0%);
+    }
+    .pc-body{padding:14px 16px 18px;position:relative;z-index:1;}
+    .washi{position:absolute;height:18px;left:-8px;right:-8px;top:-9px;border-radius:2px;z-index:25;}
+    .wb{background:rgba(100,180,255,.55);background-image:repeating-linear-gradient(90deg,transparent 0,transparent 7px,rgba(255,255,255,.35) 7px,rgba(255,255,255,.35) 9px);}
+    .wc{background:rgba(255,255,255,.4);background-image:repeating-linear-gradient(90deg,transparent 0,transparent 6px,rgba(74,144,220,.5) 6px,rgba(74,144,220,.5) 8px),repeating-linear-gradient(0deg,transparent 0,transparent 6px,rgba(74,144,220,.5) 6px,rgba(74,144,220,.5) 8px);}
+    .pin{position:absolute;border-radius:50%;box-shadow:1px 1px 5px rgba(0,0,0,.4),inset -1px -1px 3px rgba(0,0,0,.2);z-index:30;width:18px;height:18px;top:-10px;left:50%;transform:translateX(-50%);}
+    .pin::after{content:'';position:absolute;bottom:-7px;left:50%;transform:translateX(-50%);width:3px;height:9px;background:linear-gradient(to bottom,#bdbdbd,#757575);border-radius:0 0 2px 2px;}
+    .pr{background:radial-gradient(circle at 35% 32%,#ff8a80,#c62828);}
+    .pb{background:radial-gradient(circle at 35% 32%,#90caf9,#1565c0);}
+    .pg{background:radial-gradient(circle at 35% 32%,#a5d6a7,#1b5e20);}
+    .py{background:radial-gradient(circle at 35% 32%,#ffe082,#e65100);}
+    .card-h{font-family:'Titan One',cursive;font-size:.88rem;color:#1a4f8a;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;margin-top:2px;}
+
+    /* ─── LEFT: QUEUE ─── */
+    .q-panel{display:flex;flex-direction:column;gap:18px;}
+    .q-list{max-height:calc(45vh - 120px);min-height:120px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(26,79,138,.3) transparent;}
+    .q-item{display:flex;align-items:center;gap:7px;padding:6px 8px;border-radius:4px;font-size:.95rem;color:#2c4a6e;cursor:default;transition:background .15s;}
+    .q-item:hover{background:rgba(26,79,138,.07);}
+    .q-item.q-cur{background:rgba(26,79,138,.13);font-weight:700;color:#1a4f8a;}
+    .q-num{font-family:'Titan One',cursive;font-size:.72rem;color:#8fb8d8;min-width:18px;}
+    .q-item.q-cur .q-num{color:#1a4f8a;}
+    .done-list{max-height:calc(38vh - 100px);min-height:100px;overflow-y:auto;}
+    .done-item{display:flex;align-items:center;gap:6px;padding:5px 8px;font-size:.88rem;color:#5c8fc4;}
+    .done-chk{color:#4caf50;font-size:.85rem;}
+    .done-badge{display:inline-block;padding:1px 7px;border-radius:9px;font-size:.72rem;color:#fff;font-family:'Caveat',cursive;font-weight:700;flex-shrink:0;}
+    .empty-q{color:#afc8d8;font-size:.85rem;text-align:center;padding:12px 0;font-style:italic;}
+    .prog-wrap{margin-top:6px;}
+    .prog-bar{height:5px;background:rgba(26,79,138,.12);border-radius:3px;overflow:hidden;}
+    .prog-fill{height:100%;background:linear-gradient(90deg,#4a90d9,#90caf9);transition:width .5s ease;border-radius:3px;}
+    .prog-txt{font-family:'Caveat',cursive;font-size:.78rem;color:#8fb8d8;margin-top:3px;text-align:right;}
+
+    /* ─── CENTER: WHEEL ─── */
+    .sw-center{display:flex;flex-direction:column;align-items:center;gap:14px;}
+
+    /* Name card */
+    .name-card{
+      width:100%;background:#fffef7;padding:14px 20px 20px;text-align:center;
+      box-shadow:4px 5px 18px rgba(0,0,0,.34);transform:rotate(-.4deg);position:relative;overflow:visible;
+    }
+    .name-card::after{
+      content:'';position:absolute;bottom:-10px;left:0;right:0;height:12px;background:#fffef7;
+      clip-path:polygon(0% 0%,2.5% 100%,5% 20%,7.5% 100%,10% 35%,12.5% 100%,15% 15%,17.5% 100%,20% 40%,22.5% 100%,25% 10%,27.5% 100%,30% 45%,32.5% 100%,35% 20%,37.5% 100%,40% 50%,42.5% 100%,45% 15%,47.5% 100%,50% 35%,52.5% 100%,55% 20%,57.5% 100%,60% 45%,62.5% 100%,65% 10%,67.5% 100%,70% 30%,72.5% 100%,75% 20%,77.5% 100%,80% 40%,82.5% 100%,85% 15%,87.5% 100%,90% 35%,92.5% 100%,95% 10%,97.5% 100%,100% 0%);
+    }
+    .name-lbl{font-family:'Caveat',cursive;font-size:.85rem;color:#8fb8d8;letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;}
+    .name-txt{font-family:'Titan One',cursive;font-size:clamp(1.4rem,3vw,2rem);color:#1a4f8a;line-height:1.1;}
+    .name-txt.pop{animation:name-pop .45s cubic-bezier(.22,.68,0,1.3);}
+    @keyframes name-pop{0%{transform:scale(.75) translateY(-8px);opacity:0;}100%{transform:scale(1) translateY(0);opacity:1;}}
+
+    /* Wheel */
+    .wheel-wrap{position:relative;display:inline-flex;}
+    .wheel-ptr{
+      position:absolute;top:-2px;left:50%;transform:translateX(-50%);z-index:20;
+      width:0;height:0;border-left:15px solid transparent;border-right:15px solid transparent;
+      border-top:34px solid #fffef7;filter:drop-shadow(2px 3px 8px rgba(0,0,0,.5));
+    }
+    #wheelCanvas{display:block;border-radius:50%;cursor:default;
+      box-shadow:6px 8px 30px rgba(0,0,0,.42),0 0 0 5px rgba(255,255,255,.14),0 0 0 9px rgba(255,255,255,.07);}
+
+    /* Spin btn */
+    .spin-btn{
+      font-family:'Titan One',cursive;font-size:1.55rem;color:#fff;
+      background:linear-gradient(145deg,#1e3f7a,#2468c4);
+      border:none;padding:13px 50px;cursor:pointer;
+      box-shadow:4px 5px 16px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.15);
+      transition:transform .2s cubic-bezier(.22,.68,0,1.5),box-shadow .2s ease;
+      text-transform:uppercase;letter-spacing:3px;position:relative;
+    }
+    .spin-btn::before{content:'';position:absolute;inset:0;border:2px solid rgba(255,255,255,.15);}
+    .spin-btn:hover:not(:disabled){transform:translateY(-4px) scale(1.04);box-shadow:6px 10px 28px rgba(0,0,0,.5);}
+    .spin-btn:active:not(:disabled){transform:translateY(1px);box-shadow:2px 3px 8px rgba(0,0,0,.4);}
+    .spin-btn:disabled{opacity:.4;cursor:not-allowed;}
+
+    /* All done state */
+    .all-done-banner{
+      text-align:center;padding:20px;
+    }
+    .all-done-title{font-family:'Titan One',cursive;font-size:1.6rem;color:#fff;text-shadow:3px 3px 10px rgba(0,0,0,.4);margin-bottom:8px;}
+    .all-done-sub{font-family:'Caveat',cursive;font-size:1.1rem;color:rgba(255,255,255,.75);}
+
+    /* Result */
+    .result-area{width:100%;display:flex;flex-direction:column;align-items:center;gap:10px;animation:res-in .4s cubic-bezier(.22,.68,0,1.2);}
+    .result-area.hidden{display:none;}
+    @keyframes res-in{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+    .result-badge{
+      display:inline-block;padding:10px 30px;
+      font-family:'Titan One',cursive;font-size:1.4rem;color:#fff;
+      border-radius:4px;box-shadow:3px 4px 14px rgba(0,0,0,.35);
+      text-shadow:1px 2px 4px rgba(0,0,0,.3);text-align:center;
+      transition:background-color .4s ease,box-shadow .3s ease;
+    }
+    .result-ctrl{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+    .retry-btn,.confirm-btn{
+      font-family:'Titan One',cursive;font-size:.95rem;padding:10px 24px;
+      border:none;cursor:pointer;letter-spacing:1px;text-transform:uppercase;
+      box-shadow:3px 4px 10px rgba(0,0,0,.3);transition:transform .2s,box-shadow .2s;
+    }
+    .retry-btn:hover,.confirm-btn:hover{transform:translateY(-3px);box-shadow:4px 6px 16px rgba(0,0,0,.4);}
+    .retry-btn{background:#fffef7;color:#1a4f8a;border:2px solid rgba(26,79,138,.25);}
+    .confirm-btn{background:linear-gradient(135deg,#2e7d32,#43a047);color:#fff;}
+
+    /* ─── RIGHT: GROUPS ─── */
+    .groups-panel{display:flex;flex-direction:column;gap:15px;}
+    .gc{position:relative;overflow:visible;box-shadow:4px 5px 16px rgba(0,0,0,.3);}
+    .gc::after{content:'';position:absolute;bottom:-10px;left:0;right:0;height:12px;
+      clip-path:polygon(0% 0%,2.5% 100%,5% 20%,7.5% 100%,10% 35%,12.5% 100%,15% 15%,17.5% 100%,20% 40%,22.5% 100%,25% 10%,27.5% 100%,30% 45%,32.5% 100%,35% 20%,37.5% 100%,40% 50%,42.5% 100%,45% 15%,47.5% 100%,50% 35%,52.5% 100%,55% 20%,57.5% 100%,60% 45%,62.5% 100%,65% 10%,67.5% 100%,70% 30%,72.5% 100%,75% 20%,77.5% 100%,80% 40%,82.5% 100%,85% 15%,87.5% 100%,90% 35%,92.5% 100%,95% 10%,97.5% 100%,100% 0%);}
+    .gc-0{background:#fff8f8;transform:rotate(-.7deg);} .gc-0::after{background:#fff8f8;}
+    .gc-1{background:#f0f7ff;transform:rotate(1.1deg);} .gc-1::after{background:#f0f7ff;}
+    .gc-2{background:#f0f7e8;transform:rotate(-.4deg);} .gc-2::after{background:#f0f7e8;}
+    .gc-3{background:#fffef0;transform:rotate(.8deg);}  .gc-3::after{background:#fffef0;}
+    .gc-body{padding:12px 14px 16px;}
+    .gh{display:flex;align-items:center;gap:7px;margin-bottom:7px;}
+    .g-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;}
+    .g-name{font-family:'Titan One',cursive;font-size:.88rem;color:#1a4f8a;text-transform:uppercase;letter-spacing:.5px;}
+    .g-count{font-family:'Caveat',cursive;font-size:.78rem;color:#8fb8d8;margin-left:auto;}
+    .g-members{list-style:none;display:flex;flex-direction:column;gap:2px;}
+    .g-member{font-family:'Caveat',cursive;font-size:.88rem;color:#2c4a6e;padding:1px 4px;display:flex;align-items:center;gap:5px;}
+    .g-member::before{content:'·';color:#8fb8d8;}
+    .g-empty{font-family:'Caveat',cursive;font-size:.82rem;color:#b8ccda;font-style:italic;padding:1px 0;}
+
+    /* ─── ADMIN OVERLAY ─── */
+    .adm-overlay{position:fixed;inset:0;background:rgba(4,12,38,.9);z-index:500;display:flex;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;}
+    .adm-overlay.hidden{display:none;}
+    .adm-panel{background:#f2f5fa;max-width:860px;width:100%;margin:auto;box-shadow:8px 12px 44px rgba(0,0,0,.55);}
+    .adm-hdr{background:#1a3a6a;color:#fff;padding:16px 22px;display:flex;align-items:center;justify-content:space-between;}
+    .adm-title{font-family:'Titan One',cursive;font-size:1.2rem;letter-spacing:1.5px;text-transform:uppercase;}
+    .adm-close{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;transition:background .2s;}
+    .adm-close:hover{background:rgba(255,255,255,.28);}
+    .adm-sec{padding:18px 22px;border-bottom:1px solid rgba(0,0,0,.08);}
+    .adm-sec-title{font-family:'Titan One',cursive;font-size:.82rem;color:#1a3a6a;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px;}
+    .ai{font-family:'Caveat',cursive;font-size:1rem;padding:8px 11px;border:2px solid rgba(26,60,120,.22);border-radius:4px;background:#fff;color:#1a3a6a;outline:none;transition:border-color .2s;}
+    .ai:focus{border-color:#1565c0;}
+    .ai-w{width:100%;}
+    .asel{font-family:'Caveat',cursive;font-size:1rem;padding:8px 11px;border:2px solid rgba(26,60,120,.22);border-radius:4px;background:#fff;color:#1a3a6a;outline:none;cursor:pointer;}
+    .asel:focus{border-color:#1565c0;}
+    .abtn{font-family:'Titan One',cursive;font-size:.8rem;padding:8px 18px;border:none;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all .15s;border-radius:0;}
+    .abtn-p{background:#1a3a6a;color:#fff;box-shadow:2px 3px 7px rgba(0,0,0,.22);}
+    .abtn-p:hover{background:#1e4a8a;transform:translateY(-1px);}
+    .abtn-d{background:#c62828;color:#fff;box-shadow:2px 3px 7px rgba(0,0,0,.22);}
+    .abtn-d:hover{background:#d32f2f;transform:translateY(-1px);}
+    .abtn-s{background:rgba(26,60,120,.1);color:#1a3a6a;border:1.5px solid rgba(26,60,120,.22);}
+    .abtn-s:hover{background:rgba(26,60,120,.17);}
+    .gn-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .gn-row{display:flex;align-items:center;gap:8px;}
+    .gn-dot{width:13px;height:13px;border-radius:50%;flex-shrink:0;}
+    .add-row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;}
+    .add-row .ai{max-width:220px;flex:1;}
+    .ptable{width:100%;border-collapse:collapse;margin-top:4px;}
+    .ptable th{font-family:'Titan One',cursive;font-size:.72rem;color:#5c8fc4;text-transform:uppercase;letter-spacing:1.5px;padding:7px 10px;text-align:left;border-bottom:2px solid rgba(26,60,120,.14);}
+    .ptable td{font-family:'Caveat',cursive;font-size:.92rem;color:#1a3a6a;padding:6px 10px;border-bottom:1px solid rgba(26,60,120,.07);vertical-align:middle;}
+    .ptable tr:hover td{background:rgba(26,60,120,.04);}
+    .tdel{background:none;border:none;color:#c62828;cursor:pointer;font-size:.95rem;padding:2px 6px;border-radius:4px;transition:background .15s;}
+    .tdel:hover{background:rgba(198,40,40,.1);}
+    .gbadge{display:inline-block;padding:1px 8px;border-radius:9px;font-size:.78rem;color:#fff;font-family:'Caveat',cursive;font-weight:700;}
+    .import-ta{width:100%;height:90px;font-family:'Caveat',cursive;font-size:.88rem;padding:9px 11px;border:2px solid rgba(26,60,120,.18);border-radius:4px;background:#fff;color:#1a3a6a;resize:vertical;outline:none;}
+    .import-ta:focus{border-color:#1565c0;}
+    .import-note{font-family:'Caveat',cursive;font-size:.8rem;color:#8fb8d8;margin-bottom:6px;}
+    .adm-actions{display:flex;gap:10px;flex-wrap:wrap;padding:16px 22px 22px;}
+    .adm-auth{padding:28px 22px;text-align:center;}
+    .adm-auth-title{font-family:'Titan One',cursive;font-size:1rem;color:#1a3a6a;margin-bottom:14px;}
+    .auth-inp{font-family:'Caveat',cursive;font-size:1.2rem;padding:10px 16px;border:2px solid rgba(26,60,120,.28);border-radius:4px;background:#fff;color:#1a3a6a;outline:none;text-align:center;letter-spacing:4px;max-width:180px;width:100%;}
+    .auth-inp:focus{border-color:#1565c0;}
+    .auth-err{color:#c62828;font-family:'Caveat',cursive;font-size:.88rem;margin-top:7px;min-height:18px;}
+    .ptable-wrap{max-height:280px;overflow-y:auto;}
+
+    /* TOAST */
+    .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a3a6a;color:#fff;font-family:'Titan One',cursive;font-size:.95rem;padding:11px 26px;box-shadow:4px 5px 16px rgba(0,0,0,.4);z-index:999;letter-spacing:1px;text-transform:uppercase;transition:transform .38s cubic-bezier(.22,.68,0,1.2);pointer-events:none;}
+    .toast.show{transform:translateX(-50%) translateY(0);}
+
+    /* Scrollbars */
+    ::-webkit-scrollbar{width:5px;} ::-webkit-scrollbar-track{background:transparent;}
+    ::-webkit-scrollbar-thumb{background:rgba(26,79,138,.28);border-radius:3px;}
+  </style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+<canvas id="confetti-canvas"></canvas>
+<div class="toast" id="toast"></div>
+
+<div class="sw-page">
+  <!-- HEADER -->
+  <header class="sw-header">
+    <a class="sw-back" href="index.html">← Back</a>
+    <div class="sw-htitle">🎡 Spin The Wheel</div>
+    <button class="sw-admin-btn" id="adminOpenBtn">⚙ Admin</button>
+  </header>
+
+  <!-- MAIN 3-COL -->
+  <div class="sw-main">
+
+    <!-- LEFT: QUEUE -->
+    <aside class="q-panel">
+      <div class="pc" style="transform:rotate(-.8deg)">
+        <div class="washi wb"></div>
+        <div class="pin pr"></div>
+        <div class="pc-body">
+          <div class="card-h">Antrian</div>
+          <div class="q-list" id="queueList"></div>
+        </div>
+      </div>
+      <div class="pc" style="transform:rotate(.6deg)">
+        <div class="washi wc"></div>
+        <div class="pin pg"></div>
+        <div class="pc-body">
+          <div class="card-h">Selesai ✓</div>
+          <div class="done-list" id="doneList"></div>
+          <div class="prog-wrap" id="progWrap" style="display:none">
+            <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+            <div class="prog-txt" id="progTxt"></div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- CENTER: WHEEL -->
+    <main class="sw-center">
+      <!-- Name display -->
+      <div class="name-card" id="nameCard">
+        <div class="washi wb"></div>
+        <div class="pin py"></div>
+        <div class="name-lbl">Peserta Sekarang</div>
+        <div class="name-txt" id="nameTxt">–</div>
+      </div>
+
+      <!-- Wheel -->
+      <div class="wheel-wrap">
+        <div class="wheel-ptr"></div>
+        <canvas id="wheelCanvas"></canvas>
+      </div>
+
+      <!-- Spin button -->
+      <button class="spin-btn" id="spinBtn" disabled>SPIN!</button>
+
+      <!-- Result -->
+      <div class="result-area hidden" id="resultArea">
+        <div class="result-badge" id="resultBadge">–</div>
+        <div class="result-ctrl">
+          <button class="retry-btn" id="retryBtn">🔄 Retry</button>
+          <button class="confirm-btn" id="confirmBtn">✓ Confirm!</button>
+        </div>
+      </div>
+
+      <!-- All done -->
+      <div class="all-done-banner hidden" id="allDone">
+        <div class="all-done-title">🎉 Semua Selesai! 🎉</div>
+        <div class="all-done-sub">Semua peserta sudah mendapat kelompok!</div>
+      </div>
+    </main>
+
+    <!-- RIGHT: GROUPS -->
+    <aside class="groups-panel" id="groupsPanel"></aside>
+
+  </div><!-- end sw-main -->
+</div><!-- end sw-page -->
+
+<!-- ADMIN OVERLAY -->
+<div class="adm-overlay hidden" id="adminOverlay">
+  <div class="adm-panel">
+    <div class="adm-hdr">
+      <div class="adm-title">⚙ Admin Panel</div>
+      <button class="adm-close" id="adminClose">✕</button>
+    </div>
+
+    <!-- Auth gate (shown until authenticated) -->
+    <div id="adminAuth" class="adm-auth">
+      <div class="adm-auth-title">Masukkan Password Admin</div>
+      <input class="auth-inp" id="authInp" type="password" placeholder="••••••••" autocomplete="off">
+      <br><br>
+      <button class="abtn abtn-p" id="authSubmit">Masuk</button>
+      <div class="auth-err" id="authErr"></div>
+    </div>
+
+    <!-- Admin content (hidden until authenticated) -->
+    <div id="adminContent" style="display:none">
+      <!-- Group names -->
+      <div class="adm-sec">
+        <div class="adm-sec-title">📌 Nama Kelompok</div>
+        <div class="gn-grid" id="groupNamesGrid"></div>
+        <br>
+        <button class="abtn abtn-p" id="saveGroupNames">Simpan Nama</button>
+      </div>
+
+      <!-- Add participant -->
+      <div class="adm-sec">
+        <div class="adm-sec-title">➕ Tambah Peserta</div>
+        <div class="add-row">
+          <input class="ai" id="addName" type="text" placeholder="Nama peserta…">
+          <select class="asel" id="addGroup"></select>
+          <button class="abtn abtn-p" id="addParticipant">Tambah</button>
+        </div>
+      </div>
+
+      <!-- Participant list -->
+      <div class="adm-sec">
+        <div class="adm-sec-title">👥 Daftar Peserta (<span id="pCount">0</span>)</div>
+        <div class="ptable-wrap">
+          <table class="ptable">
+            <thead><tr><th>#</th><th>Nama</th><th>Kelompok</th><th>Status</th><th></th></tr></thead>
+            <tbody id="participantTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Bulk import -->
+      <div class="adm-sec">
+        <div class="adm-sec-title">📋 Import Massal</div>
+        <div class="import-note">Format: satu baris per peserta → <code>Nama,0</code> (grup 0–3) atau JSON array</div>
+        <textarea class="import-ta" id="importTa" placeholder='Nama Peserta,0&#10;Nama Lain,1&#10;atau JSON: [{"name":"Budi","group":2}]'></textarea>
+        <br><br>
+        <button class="abtn abtn-p" id="importBtn">Import</button>
+        &nbsp;
+        <button class="abtn abtn-s" id="exportBtn">Export JSON</button>
+      </div>
+
+      <!-- Danger actions -->
+      <div class="adm-actions">
+        <button class="abtn abtn-s" id="resetSession">🔄 Reset Sesi</button>
+        <button class="abtn abtn-d" id="clearAll">🗑 Hapus Semua Data</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   BACKGROUND CANVAS (same as main page)
+═══════════════════════════════════════════ */
+(function(){
+  const canvas=document.getElementById('bg-canvas');
+  const ctx=canvas.getContext('2d');
+  let W,H;
+  const COLORS=['#f4d03f','#90caf9','#fff59d','#f48fb1','#ffe082','#80deea','#ffb74d','#ce93d8','#a5d6a7','#ef9a9a'];
+  const rnd=(a,b)=>a+Math.random()*(b-a);
+  const pick=a=>a[~~(Math.random()*a.length)];
+  class Bokeh{constructor(){this.reset(true);}reset(i){this.x=rnd(0,W);this.y=i?rnd(0,H):H+rnd(10,50);this.r=rnd(4,12);this.color=pick(COLORS);this.vy=-rnd(.12,.38);this.vx=rnd(-.25,.25);this.alpha=rnd(.08,.25);this.phase=rnd(0,Math.PI*2);this.ps=rnd(.008,.022);}update(t){this.x+=this.vx+Math.sin(t*.0008+this.phase)*.25;this.y+=this.vy;this.phase+=this.ps;if(this.y<-this.r*4)this.reset(false);}draw(){const a=this.alpha*(0.55+0.45*Math.sin(this.phase*2));ctx.save();ctx.globalAlpha=a;const g=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r*3);g.addColorStop(0,this.color+'bb');g.addColorStop(.5,this.color+'44');g.addColorStop(1,this.color+'00');ctx.beginPath();ctx.arc(this.x,this.y,this.r*3,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();ctx.restore();}}
+  const bokeh=[];
+  function init(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;bokeh.length=0;for(let i=0;i<36;i++)bokeh.push(new Bokeh());}
+  function frame(t){ctx.clearRect(0,0,W,H);bokeh.forEach(p=>{p.update(t);p.draw();});requestAnimationFrame(frame);}
+  window.addEventListener('resize',init);init();requestAnimationFrame(frame);
+})();
+
+/* ═══════════════════════════════════════════
+   CONSTANTS & STATE
+═══════════════════════════════════════════ */
+const STORAGE_KEY = 'ynp_spinwheel_v1';
+const ADMIN_PASS  = 'ynp2026';
+let WHEEL_SIZE  = 400;
+const NG          = 4; // num groups
+
+const GC = [
+  { wheel:'#e53935', light:'#fff8f8', dot:'#c62828' },
+  { wheel:'#1e88e5', light:'#f0f7ff', dot:'#1565c0' },
+  { wheel:'#43a047', light:'#f0f7e8', dot:'#2e7d32' },
+  { wheel:'#fb8c00', light:'#fffef0', dot:'#e65100' },
+];
+
+let data = {
+  groups: ['Kelompok 1','Kelompok 2','Kelompok 3','Kelompok 4'],
+  participants: [], // {name, group}
+  session: { queue:[], currentIdx:null, done:[] } // done: {pidx,cGroup}
+};
+
+let wheelRot   = 0;
+let spinning   = false;
+let spinRaf    = null;
+let spinSt     = null; // {assigned, alternative, retryCount, displayGroup}
+let adminAuth  = false;
+
+/* ═══════════════════════════════════════════
+   STORAGE
+═══════════════════════════════════════════ */
+function load(){
+  try{
+    const s=localStorage.getItem(STORAGE_KEY);
+    if(s){const p=JSON.parse(s);data={...data,...p};if(!data.groups||data.groups.length!==4)data.groups=['Kelompok 1','Kelompok 2','Kelompok 3','Kelompok 4'];}
+  }catch(e){}
+}
+function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(data));}catch(e){}}
+
+/* ═══════════════════════════════════════════
+   WHEEL DRAWING
+═══════════════════════════════════════════ */
+function drawWheel(rot){
+  const cv=document.getElementById('wheelCanvas');
+  if(!cv)return;
+  const ctx=cv.getContext('2d');
+  const sz=cv.width, cx=sz/2, cy=sz/2, r=cx-Math.round(sz*.035);
+  const sc=sz/400; // scale factor relative to 400px base design
+  const sa=2*Math.PI/NG;
+  ctx.clearRect(0,0,sz,sz);
+
+  // shadow
+  ctx.save();ctx.shadowColor='rgba(0,0,0,.45)';ctx.shadowBlur=22*sc;ctx.shadowOffsetY=6*sc;
+  ctx.beginPath();ctx.arc(cx,cy,r+2,0,2*Math.PI);ctx.fillStyle='#222';ctx.fill();ctx.restore();
+
+  for(let i=0;i<NG;i++){
+    const a0=rot+i*sa, a1=a0+sa, am=a0+sa/2;
+    // fill
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,a0,a1);ctx.closePath();
+    ctx.fillStyle=GC[i].wheel;ctx.fill();
+    // shine
+    const sx=cx+Math.cos(am)*r*.32,sy=cy+Math.sin(am)*r*.32;
+    const g=ctx.createRadialGradient(sx,sy,0,cx,cy,r);
+    g.addColorStop(0,'rgba(255,255,255,.22)');g.addColorStop(.5,'rgba(255,255,255,.04)');g.addColorStop(1,'rgba(0,0,0,.14)');
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,a0,a1);ctx.closePath();ctx.fillStyle=g;ctx.fill();
+    // label
+    const tx=cx+Math.cos(am)*r*.62,ty=cy+Math.sin(am)*r*.62;
+    ctx.save();ctx.translate(tx,ty);ctx.rotate(am+Math.PI/2);ctx.textAlign='center';ctx.textBaseline='middle';
+    const name=data.groups[i]||'Kel.'+(i+1);
+    const words=name.split(' ');
+    const fs=Math.round(14*sc), lh=fs+Math.round(4*sc);
+    ctx.font=`bold ${fs}px "Titan One",serif`;
+    if(words.length>=3||(name.length>11&&words.length>=2)){
+      const h=Math.ceil(words.length/2),l1=words.slice(0,h).join(' '),l2=words.slice(h).join(' ');
+      ctx.fillStyle='rgba(0,0,0,.3)';ctx.fillText(l1,1,1-lh/2);ctx.fillText(l2,1,1+lh/2);
+      ctx.fillStyle='#fff';ctx.fillText(l1,0,-lh/2);ctx.fillText(l2,0,lh/2);
+    } else {
+      ctx.fillStyle='rgba(0,0,0,.3)';ctx.fillText(name,1,1);
+      ctx.fillStyle='#fff';ctx.fillText(name,0,0);
+    }
+    ctx.restore();
+  }
+  // dividers
+  for(let i=0;i<NG;i++){const a=rot+i*sa;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r);ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=2.5*sc;ctx.stroke();}
+  // outer ring
+  ctx.beginPath();ctx.arc(cx,cy,r,0,2*Math.PI);ctx.strokeStyle='rgba(255,255,255,.45)';ctx.lineWidth=5*sc;ctx.stroke();
+  // notch dots
+  for(let i=0;i<NG;i++){const a=rot+i*sa;ctx.beginPath();ctx.arc(cx+Math.cos(a)*r,cy+Math.sin(a)*r,Math.round(6*sc),0,2*Math.PI);ctx.fillStyle='#fffef7';ctx.fill();}
+  // hub
+  const hr=Math.round(22*sc);
+  const hg=ctx.createRadialGradient(cx-4*sc,cy-4*sc,2,cx,cy,hr);hg.addColorStop(0,'#5080c8');hg.addColorStop(1,'#1a3a6a');
+  ctx.beginPath();ctx.arc(cx,cy,hr,0,2*Math.PI);ctx.fillStyle=hg;ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,.7)';ctx.lineWidth=2.5*sc;ctx.stroke();
+  const hfs=Math.round(9*sc);
+  ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`bold ${hfs}px "Titan One",serif`;
+  ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillText('Y&P',cx+1,cy+1);
+  ctx.fillStyle='#fffef7';ctx.fillText('Y&P',cx,cy);
+}
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE WHEEL RESIZE
+═══════════════════════════════════════════ */
+function resizeWheel(){
+  const cv=document.getElementById('wheelCanvas');
+  const center=document.querySelector('.sw-center');
+  if(!cv||!center)return;
+  const avail=center.clientWidth-40;
+  const sz=Math.max(300,Math.min(580,avail));
+  cv.width=sz; cv.height=sz;
+  WHEEL_SIZE=sz;
+  drawWheel(wheelRot);
+}
+
+/* ═══════════════════════════════════════════
+   SPIN MATH
+═══════════════════════════════════════════ */
+function segAtPointer(rot){
+  const r=((rot%(2*Math.PI))+2*Math.PI)%(2*Math.PI);
+  const rel=((3*Math.PI/2-r)%(2*Math.PI)+2*Math.PI)%(2*Math.PI);
+  return Math.floor(rel/(2*Math.PI/NG))%NG;
+}
+
+function calcTarget(curRot, tSeg){
+  const sa=2*Math.PI/NG;
+  const base=3*Math.PI/2-tSeg*sa-sa/2;
+  let tm=((base%(2*Math.PI))+2*Math.PI)%(2*Math.PI);
+  tm+=((Math.random()-.5)*sa*.65); // jitter
+  tm=((tm%(2*Math.PI))+2*Math.PI)%(2*Math.PI);
+  const cm=((curRot%(2*Math.PI))+2*Math.PI)%(2*Math.PI);
+  let diff=tm-cm;
+  if(diff<=Math.PI*.12)diff+=2*Math.PI;
+  return curRot+5*2*Math.PI+diff;
+}
+
+function easeOut5(t){return 1-Math.pow(1-t,5);}
+
+/* ═══════════════════════════════════════════
+   AUDIO
+═══════════════════════════════════════════ */
+let aCtx=null;
+function getACtx(){if(!aCtx)try{aCtx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}return aCtx;}
+function tick(prog){
+  const c=getACtx();if(!c)return;
+  try{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);
+  o.frequency.value=700+(1-prog)*350;const v=.04+(1-prog)*.1;
+  g.gain.setValueAtTime(v,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.04);
+  o.start();o.stop(c.currentTime+.05);}catch(e){}
+}
+function fanfare(){
+  const c=getACtx();if(!c)return;
+  [523,659,784,1047].forEach((f,i)=>{try{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='triangle';o.frequency.value=f;const t=c.currentTime+i*.1;g.gain.setValueAtTime(.001,t);g.gain.linearRampToValueAtTime(.12,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+.38);o.start(t);o.stop(t+.42);}catch(e){}});
+}
+
+/* ═══════════════════════════════════════════
+   CONFETTI
+═══════════════════════════════════════════ */
+function burst(color){
+  const cv=document.getElementById('confetti-canvas');
+  cv.width=innerWidth;cv.height=innerHeight;
+  const ctx=cv.getContext('2d');
+  const cols=[color,'#fff9c4','#90caf9','#fff','#f48fb1','#ffe082'];
+  const ps=[];
+  for(let i=0;i<90;i++){const a=Math.random()*2*Math.PI,sp=3+Math.random()*7;ps.push({x:cv.width/2,y:cv.height*.45,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-2.5,w:4+Math.random()*6,h:2+Math.random()*4,rot:Math.random()*Math.PI*2,vr:(Math.random()-.5)*.18,col:cols[~~(Math.random()*cols.length)],g:.1+Math.random()*.07,a:1});}
+  let f=0;
+  function anim(){ctx.clearRect(0,0,cv.width,cv.height);let alive=false;
+    ps.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=p.g;p.vx*=.99;p.rot+=p.vr;if(f>25)p.a-=.016;if(p.a>0)alive=true;
+    ctx.save();ctx.globalAlpha=Math.max(0,p.a);ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.fillStyle=p.col;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();});
+    f++;if(alive&&f<160)requestAnimationFrame(anim);else ctx.clearRect(0,0,cv.width,cv.height);}
+  anim();
+}
+
+/* ═══════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════ */
+let toastTimer=null;
+function showToast(msg){
+  const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2600);
+}
+
+/* ═══════════════════════════════════════════
+   SPIN
+═══════════════════════════════════════════ */
+function doSpin(targetSeg, onDone){
+  if(spinning)return;
+  spinning=true;
+  document.getElementById('spinBtn').disabled=true;
+  document.getElementById('resultArea').classList.add('hidden');
+  const start=wheelRot, end=calcTarget(start,targetSeg), dur=3800, t0=performance.now();
+  let lastSeg=segAtPointer(start);
+  function step(now){
+    const el=now-t0, t=Math.min(el/dur,1), e=easeOut5(t);
+    wheelRot=start+(end-start)*e; drawWheel(wheelRot);
+    const cs=segAtPointer(wheelRot);
+    if(cs!==lastSeg){tick(t);lastSeg=cs;}
+    if(t<1){spinRaf=requestAnimationFrame(step);}
+    else{wheelRot=end;drawWheel(wheelRot);spinning=false;onDone();}
+  }
+  requestAnimationFrame(step);
+}
+
+function startSpin(){
+  const sess=data.session;
+  if(sess.currentIdx===null||spinning)return;
+  const p=data.participants[sess.currentIdx];
+  spinSt={assigned:p.group, alternative:altGroup(p.group), retryCount:0, displayGroup:p.group};
+  doSpin(spinSt.assigned, ()=>{
+    spinSt.displayGroup=spinSt.assigned;
+    showResult();
+    fanfare();
+  });
+}
+
+function doRetry(){
+  if(spinning||!spinSt)return;
+  spinSt.retryCount++;
+  const target = spinSt.retryCount%2===1 ? spinSt.alternative : spinSt.assigned;
+  spinSt.displayGroup = target;
+  doSpin(target, ()=>{
+    showResult();
+    if(spinSt.retryCount%2===0) fanfare();
+  });
+}
+
+function doConfirm(){
+  if(spinning||!spinSt)return;
+  const sess=data.session;
+  sess.done.push({pidx:sess.currentIdx, cGroup:spinSt.assigned});
+  // remove from queue
+  sess.queue=sess.queue.filter(i=>i!==sess.currentIdx);
+  burst(GC[spinSt.assigned].dot);
+  showToast('✓ Masuk '+data.groups[spinSt.assigned]+'!');
+  spinSt=null;
+  // advance
+  if(sess.queue.length>0){
+    sess.currentIdx=sess.queue[0];
+  } else {
+    sess.currentIdx=null;
+  }
+  save();
+  renderUI();
+}
+
+function altGroup(g){const o=[0,1,2,3].filter(i=>i!==g);return o[~~(Math.random()*o.length)];}
+
+function showResult(){
+  const g=spinSt.displayGroup;
+  const badge=document.getElementById('resultBadge');
+  badge.textContent='🎉 '+data.groups[g]+'! 🎉';
+  badge.style.background=GC[g].wheel;
+  badge.style.boxShadow=`3px 4px 14px ${GC[g].dot}88`;
+  document.getElementById('resultArea').classList.remove('hidden');
+  document.getElementById('spinBtn').disabled=true;
+}
+
+/* ═══════════════════════════════════════════
+   RENDER UI
+═══════════════════════════════════════════ */
+function renderUI(){
+  renderQueue();
+  renderDone();
+  renderGroups();
+  renderCenter();
+}
+
+function renderQueue(){
+  const sess=data.session;
+  const el=document.getElementById('queueList');
+  if(sess.queue.length===0){
+    el.innerHTML='<div class="empty-q">Antrian kosong</div>';return;
+  }
+  el.innerHTML=sess.queue.map((pidx,i)=>{
+    const p=data.participants[pidx];
+    const isCur=pidx===sess.currentIdx;
+    return `<div class="q-item${isCur?' q-cur':''}">
+      <span class="q-num">${i+1}</span>
+      ${isCur?'<span style="color:#1a4f8a">▶</span>':''}
+      ${esc(p.name)}
+    </div>`;
+  }).join('');
+}
+
+function renderDone(){
+  const sess=data.session;
+  const el=document.getElementById('doneList');
+  const prog=document.getElementById('progWrap');
+  const fill=document.getElementById('progFill');
+  const ptxt=document.getElementById('progTxt');
+  const total=data.participants.length;
+  if(sess.done.length===0){el.innerHTML='<div class="empty-q">Belum ada</div>';prog.style.display='none';return;}
+  el.innerHTML=[...sess.done].reverse().map(d=>{
+    const p=data.participants[d.pidx];
+    return `<div class="done-item"><span class="done-chk">✓</span>${esc(p.name)}<span class="done-badge" style="background:${GC[d.cGroup].wheel}">${esc(data.groups[d.cGroup])}</span></div>`;
+  }).join('');
+  if(total>0){
+    const pct=Math.round(sess.done.length/total*100);
+    fill.style.width=pct+'%';
+    ptxt.textContent=sess.done.length+'/'+total+' selesai';
+    prog.style.display='block';
+  }
+}
+
+function renderGroups(){
+  const panel=document.getElementById('groupsPanel');
+  const sess=data.session;
+  // members per group from confirmed
+  const members=[[[],[],[],[]]];
+  const byGroup=[[],[],[],[]];
+  sess.done.forEach(d=>byGroup[d.cGroup].push(data.participants[d.pidx].name));
+  panel.innerHTML=[0,1,2,3].map(i=>{
+    const members=byGroup[i];
+    const pinCls=['pr','pb','pg','py'][i];
+    return `<div class="gc gc-${i}">
+      <div class="washi ${i%2===0?'wb':'wc'}"></div>
+      <div class="pin ${pinCls}" style="top:-10px;left:50%;transform:translateX(-50%);"></div>
+      <div class="gc-body">
+        <div class="gh">
+          <div class="g-dot" style="background:${GC[i].dot}"></div>
+          <div class="g-name">${esc(data.groups[i])}</div>
+          <div class="g-count">${members.length} org</div>
+        </div>
+        <ul class="g-members">
+          ${members.length?members.map(m=>`<li class="g-member">${esc(m)}</li>`).join(''):'<li class="g-empty">kosong</li>'}
+        </ul>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderCenter(){
+  const sess=data.session;
+  const nameEl=document.getElementById('nameTxt');
+  const spinBtn=document.getElementById('spinBtn');
+  const resultArea=document.getElementById('resultArea');
+  const allDone=document.getElementById('allDone');
+
+  // check all done
+  if(sess.currentIdx===null&&sess.done.length===data.participants.length&&data.participants.length>0){
+    nameEl.textContent='–';spinBtn.disabled=true;
+    resultArea.classList.add('hidden');allDone.classList.remove('hidden');return;
+  }
+  allDone.classList.add('hidden');
+
+  if(sess.currentIdx!==null){
+    const p=data.participants[sess.currentIdx];
+    if(nameEl.textContent!==p.name){
+      nameEl.textContent=p.name;
+      nameEl.classList.remove('pop');void nameEl.offsetWidth;nameEl.classList.add('pop');
+    }
+    spinBtn.disabled=spinning;
+  } else {
+    nameEl.textContent='–';spinBtn.disabled=true;
+    if(data.participants.length===0){
+      nameEl.textContent='Tambah peserta di Admin';
+    }
+  }
+  // keep result area as-is (only hidden/shown by spin logic)
+}
+
+/* ═══════════════════════════════════════════
+   SESSION INIT
+═══════════════════════════════════════════ */
+function initSession(){
+  const sess=data.session;
+  const confirmedPidx=new Set(sess.done.map(d=>d.pidx));
+  // queue = all participants not in done, preserve order
+  sess.queue=data.participants.map((_,i)=>i).filter(i=>!confirmedPidx.has(i));
+  sess.currentIdx=sess.queue.length>0?sess.queue[0]:null;
+}
+
+/* ═══════════════════════════════════════════
+   ADMIN PANEL
+═══════════════════════════════════════════ */
+function openAdmin(){
+  document.getElementById('adminOverlay').classList.remove('hidden');
+  if(!adminAuth){
+    document.getElementById('adminAuth').style.display='block';
+    document.getElementById('adminContent').style.display='none';
+    document.getElementById('authInp').value='';
+    document.getElementById('authErr').textContent='';
+    setTimeout(()=>document.getElementById('authInp').focus(),100);
+  } else {
+    renderAdminContent();
+  }
+}
+function closeAdmin(){document.getElementById('adminOverlay').classList.add('hidden');}
+function tryAuth(){
+  const v=document.getElementById('authInp').value;
+  if(v===ADMIN_PASS){
+    adminAuth=true;
+    document.getElementById('adminAuth').style.display='none';
+    document.getElementById('adminContent').style.display='block';
+    renderAdminContent();
+  } else {
+    document.getElementById('authErr').textContent='Password salah!';
+    document.getElementById('authInp').value='';
+    document.getElementById('authInp').focus();
+  }
+}
+
+function renderAdminContent(){
+  renderGroupNamesGrid();
+  renderAddGroupSelect();
+  renderParticipantTable();
+  document.getElementById('pCount').textContent=data.participants.length;
+}
+
+function renderGroupNamesGrid(){
+  const el=document.getElementById('groupNamesGrid');
+  el.innerHTML=[0,1,2,3].map(i=>`
+    <div class="gn-row">
+      <div class="gn-dot" style="background:${GC[i].dot}"></div>
+      <input class="ai" data-gidx="${i}" value="${esc(data.groups[i])}" placeholder="Nama kelompok ${i+1}">
+    </div>`).join('');
+}
+
+function renderAddGroupSelect(){
+  const sel=document.getElementById('addGroup');
+  sel.innerHTML=[0,1,2,3].map(i=>`<option value="${i}">${data.groups[i]}</option>`).join('');
+}
+
+function renderParticipantTable(){
+  const tbody=document.getElementById('participantTbody');
+  const sess=data.session;
+  const confirmedSet=new Set(sess.done.map(d=>d.pidx));
+  document.getElementById('pCount').textContent=data.participants.length;
+  if(data.participants.length===0){tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;color:#8fb8d8;font-style:italic">Belum ada peserta</td></tr>`;return;}
+  tbody.innerHTML=data.participants.map((p,i)=>{
+    const done=confirmedSet.has(i);
+    const doneEntry=sess.done.find(d=>d.pidx===i);
+    const stat=done?`<span style="color:#4caf50">✓ ${esc(data.groups[doneEntry.cGroup])}</span>`:'<span style="color:#8fb8d8">Menunggu</span>';
+    return `<tr>
+      <td>${i+1}</td>
+      <td>${esc(p.name)}</td>
+      <td><span class="gbadge" style="background:${GC[p.group].wheel}">${esc(data.groups[p.group])}</span></td>
+      <td>${stat}</td>
+      <td><button class="tdel" data-pidx="${i}" title="Hapus">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function saveGroupNames(){
+  document.querySelectorAll('#groupNamesGrid input[data-gidx]').forEach(inp=>{
+    const i=parseInt(inp.dataset.gidx);
+    data.groups[i]=inp.value.trim()||'Kelompok '+(i+1);
+  });
+  save();renderGroupNamesGrid();renderAdminContent();renderUI();drawWheel(wheelRot);showToast('Nama disimpan!');
+}
+
+function addParticipant(){
+  const name=document.getElementById('addName').value.trim();
+  const group=parseInt(document.getElementById('addGroup').value);
+  if(!name){document.getElementById('addName').focus();return;}
+  data.participants.push({name,group});
+  initSession();save();
+  document.getElementById('addName').value='';
+  renderAdminContent();renderUI();
+  showToast('Ditambah: '+name);
+}
+
+function deleteParticipant(pidx){
+  // rebuild done removing reference, shift indices
+  const newP=data.participants.filter((_,i)=>i!==pidx);
+  // remap done
+  data.session.done=data.session.done
+    .filter(d=>d.pidx!==pidx)
+    .map(d=>({...d,pidx:d.pidx>pidx?d.pidx-1:d.pidx}));
+  data.participants=newP;
+  initSession();save();renderAdminContent();renderUI();
+}
+
+function importBulk(){
+  const raw=document.getElementById('importTa').value.trim();
+  if(!raw)return;
+  let added=0;
+  try{
+    const arr=JSON.parse(raw);
+    if(Array.isArray(arr)){
+      arr.forEach(item=>{
+        if(item.name&&item.group>=0&&item.group<=3){
+          data.participants.push({name:String(item.name).trim(),group:parseInt(item.group)});added++;
+        }
+      });
+    }
+  }catch(e){
+    // try CSV
+    raw.split('\n').forEach(line=>{
+      const [name,grp]=line.split(',').map(s=>s.trim());
+      if(name&&grp!==undefined&&parseInt(grp)>=0&&parseInt(grp)<=3){
+        data.participants.push({name,group:parseInt(grp)});added++;
+      }
+    });
+  }
+  if(added){
+    initSession();save();renderAdminContent();renderUI();
+    document.getElementById('importTa').value='';
+    showToast(`+${added} peserta diimport`);
+  } else {
+    showToast('Format tidak dikenali');
+  }
+}
+
+function exportJSON(){
+  const out=JSON.stringify(data.participants,null,2);
+  navigator.clipboard.writeText(out).then(()=>showToast('Disalin ke clipboard!')).catch(()=>{
+    document.getElementById('importTa').value=out;
+  });
+}
+
+function resetSession(){
+  if(!confirm('Reset sesi? Semua konfirmasi kelompok dihapus, peserta masuk antrian lagi.'))return;
+  data.session={queue:[],currentIdx:null,done:[]};
+  spinSt=null;
+  initSession();save();renderUI();renderAdminContent();
+  document.getElementById('resultArea').classList.add('hidden');
+  showToast('Sesi direset');
+}
+
+function clearAllData(){
+  if(!confirm('Hapus SEMUA data peserta dan sesi? Tidak bisa dibatalkan.'))return;
+  data={groups:data.groups,participants:[],session:{queue:[],currentIdx:null,done:[]}};
+  spinSt=null;save();renderUI();renderAdminContent();
+  document.getElementById('resultArea').classList.add('hidden');
+  showToast('Data dihapus');
+}
+
+/* ═══════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════ */
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+/* ═══════════════════════════════════════════
+   EVENT LISTENERS
+═══════════════════════════════════════════ */
+document.getElementById('spinBtn').addEventListener('click',startSpin);
+document.getElementById('retryBtn').addEventListener('click',doRetry);
+document.getElementById('confirmBtn').addEventListener('click',doConfirm);
+
+document.getElementById('adminOpenBtn').addEventListener('click',openAdmin);
+document.getElementById('adminClose').addEventListener('click',closeAdmin);
+document.getElementById('adminOverlay').addEventListener('click',e=>{if(e.target===document.getElementById('adminOverlay'))closeAdmin();});
+
+document.getElementById('authSubmit').addEventListener('click',tryAuth);
+document.getElementById('authInp').addEventListener('keydown',e=>{if(e.key==='Enter')tryAuth();});
+
+document.getElementById('saveGroupNames').addEventListener('click',saveGroupNames);
+document.getElementById('addParticipant').addEventListener('click',addParticipant);
+document.getElementById('addName').addEventListener('keydown',e=>{if(e.key==='Enter')addParticipant();});
+document.getElementById('importBtn').addEventListener('click',importBulk);
+document.getElementById('exportBtn').addEventListener('click',exportJSON);
+document.getElementById('resetSession').addEventListener('click',resetSession);
+document.getElementById('clearAll').addEventListener('click',clearAllData);
+
+// Delete participant (delegated)
+document.getElementById('participantTbody').addEventListener('click',e=>{
+  const btn=e.target.closest('.tdel');
+  if(btn){const pidx=parseInt(btn.dataset.pidx);if(!isNaN(pidx))deleteParticipant(pidx);}
+});
+
+/* ═══════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════ */
+load();
+initSession();
+resizeWheel();
+renderUI();
+let _rt;
+window.addEventListener('resize',()=>{clearTimeout(_rt);_rt=setTimeout(resizeWheel,150);});
+</script>
+</body>
+</html>
