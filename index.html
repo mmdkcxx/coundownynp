@@ -262,11 +262,14 @@
     .timeline{display:flex;flex-direction:column;gap:4px;padding:18px 14px 18px;position:relative;z-index:1;}
     .tl-item{display:flex;gap:10px;align-items:flex-start;padding:7px 8px;border-radius:4px;cursor:default;transition:transform .2s ease,background .2s ease;}
     .tl-item:hover{transform:translateX(6px);background:rgba(26,79,138,.07);}
-    .tb{flex-shrink:0;font-family:'Titan One',cursive;font-size:clamp(.72rem,1.8vw,.88rem);color:#fff;padding:5px 10px;border-radius:4px;line-height:1.1;min-width:80px;text-align:center;box-shadow:2px 2px 5px rgba(0,0,0,.25);}
+    .tb{flex-shrink:0;font-family:'Titan One',cursive;font-size:clamp(.72rem,1.8vw,.88rem);color:#fff;padding:5px 10px;border-radius:4px;line-height:1.1;width:120px;text-align:center;box-shadow:2px 2px 5px rgba(0,0,0,.25);white-space:nowrap;}
     .tb-tan{background:#b8873a;}
     .tb-blue{background:#2e7dc6;}
     .tb-navy{background:#1a3a6a;}
     .ta{font-family:'Caveat',cursive;font-size:clamp(.95rem,2.5vw,1.1rem);color:#1e3a5f;line-height:1.3;padding-top:3px;}
+    .ta-wrap{display:flex;flex-direction:column;gap:4px;}
+    .gmaps-link{display:inline-block;font-family:'Caveat',cursive;font-size:clamp(.85rem,2vw,.95rem);color:#1565c0;text-decoration:none;padding:3px 8px;background:rgba(21,101,192,.08);border-radius:4px;border:1px solid rgba(21,101,192,.2);width:fit-content;transition:background .2s;}
+    .gmaps-link:hover{background:rgba(21,101,192,.18);}
 
     /* ═══════════════════════════════════════════════════
        FOOTER
@@ -381,7 +384,34 @@
     }
     @media(max-width:380px){
       .bring-grid{grid-template-columns:repeat(2,1fr);}
-      .tb{min-width:68px;font-size:.68rem;}
+      .tb{width:95px;font-size:.68rem;}
+    }
+
+    /* ═══════════════════════════════════════════════════
+       SECTION TRANSPORT
+    ═══════════════════════════════════════════════════ */
+    .transport-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;}
+    .veh-card{position:relative;background:#fffef7;box-shadow:4px 5px 18px rgba(0,0,0,.32);overflow:visible;}
+    .veh-card::after{content:'';position:absolute;bottom:-12px;left:0;right:0;height:14px;background:#fffef7;clip-path:polygon(0% 0%,2% 100%,4% 20%,6% 100%,9% 30%,12% 100%,15% 10%,18% 100%,21% 40%,24% 100%,27% 15%,30% 100%,33% 35%,37% 100%,40% 10%,43% 100%,46% 45%,50% 100%,53% 15%,57% 100%,60% 30%,63% 100%,66% 20%,70% 100%,73% 40%,76% 100%,79% 15%,82% 100%,85% 35%,88% 100%,91% 20%,94% 100%,97% 30%,100% 0%);}
+    .veh-header{background:#1a3a6a;color:#fff;font-family:'Titan One',cursive;font-size:clamp(.85rem,2.2vw,1rem);padding:11px 14px;text-align:center;text-transform:uppercase;letter-spacing:1px;position:relative;z-index:2;box-shadow:0 3px 10px rgba(0,0,0,.28);}
+    .veh-header::after{content:'';position:absolute;bottom:-8px;left:0;right:0;height:10px;background:#1a3a6a;clip-path:polygon(0 0,3% 100%,7% 10%,11% 100%,16% 30%,22% 100%,27% 10%,32% 100%,37% 40%,42% 100%,47% 15%,52% 100%,57% 35%,62% 100%,67% 10%,72% 100%,77% 30%,82% 100%,87% 15%,92% 100%,96% 25%,100% 0);z-index:3;}
+    .veh-body{padding:18px 14px 16px;position:relative;z-index:1;}
+    .veh-time{display:inline-block;font-family:'Titan One',cursive;font-size:.78rem;color:#fff;background:#2e7dc6;padding:4px 11px;border-radius:4px;margin-bottom:10px;box-shadow:2px 2px 5px rgba(0,0,0,.25);}
+    .veh-time:not(.veh-siang)::before{content:'Waktu keberangkatan';display:block;font-family:system-ui,-apple-system,sans-serif;font-size:.6rem;font-weight:600;letter-spacing:.8px;text-transform:uppercase;opacity:.82;margin-bottom:2px;}
+    .veh-time.veh-siang{background:#b8873a;}
+    .veh-loc{display:block;font-family:'Caveat',cursive;font-size:.88rem;color:#1a5ca8;margin-bottom:8px;margin-top:-4px;}
+    .veh-loc a{color:#1565c0;text-decoration:none;border-bottom:1px dashed #1565c0;}
+    .veh-loc a:hover{color:#0d3a7a;}
+    .veh-list{list-style:none;display:flex;flex-direction:column;gap:3px;}
+    .veh-list li{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-size:clamp(.82rem,2.1vw,.95rem);color:#2c4a6e;padding:3px 8px;border-radius:3px;transition:background .2s,transform .2s;cursor:default;}
+    .veh-list li:hover{background:rgba(26,79,138,.07);transform:translateX(4px);}
+    .veh-list li::before{content:'→ ';color:#8fb8d8;}
+    .veh-cargo{font-style:italic;color:#9ab5cc!important;}
+    @media(min-width:1160px){
+      .transport-grid{grid-template-columns:repeat(4,1fr);gap:22px;}
+    }
+    @media(max-width:560px){
+      .transport-grid{grid-template-columns:1fr;}
     }
 
     /* ═══════════════════════════════════════════════════
@@ -472,6 +502,9 @@
       </a>
       <a class="snav-item" href="#rundown" data-sec="rundown">
         <div class="snav-dot"></div><span class="snav-label">Rundown</span>
+      </a>
+      <a class="snav-item" href="#transport" data-sec="transport">
+        <div class="snav-dot"></div><span class="snav-label">Kendaraan</span>
       </a>
     </div>
 
@@ -655,11 +688,10 @@
           </div>
         </div>
         <div class="timeline">
-          <div class="tl-item"><span class="tb tb-tan">09.00–10.00</span><span class="ta">Meetpoint + assign mobil + take konten 📸</span></div>
-          <div class="tl-item"><span class="tb tb-tan">10.00–12.00</span><span class="ta">OTW + Lunch @Telaga Kuning (NO split bill a.k.a provided by God) 🙌</span></div>
+          <div class="tl-item"><span class="tb tb-tan">09.00–10.00</span><span class="ta-wrap"><span class="ta">Meetpoint @McD Downtown Alam Sutera + assign mobil + take konten 📸</span><a href="https://maps.app.goo.gl/kSqmAXJGEWK6LrBe8" target="_blank" rel="noopener" class="gmaps-link">📍 Lihat di Google Maps</a></span></div>
+          <div class="tl-item"><span class="tb tb-tan">10.00–12.00</span><span class="ta-wrap"><span class="ta">OTW + Lunch @Warung Temon (NO split bill a.k.a provided by God) 🙌</span><a href="https://maps.app.goo.gl/XFrwZGaCnyGJYWYq7" target="_blank" rel="noopener" class="gmaps-link">📍 Lihat di Google Maps</a></span></div>
           <div class="tl-item"><span class="tb tb-navy">14.00</span><span class="ta">Check-in &amp; Unpack</span></div>
           <div class="tl-item"><span class="tb tb-tan">14.30</span><span class="ta">ngonten, menuju core ynp menjadi tiktok affiliate or selebrok 🎥</span></div>
-          <div class="tl-item"><span class="tb tb-tan">15.00</span><span class="ta">SPILL one OF YOUR FUNNY MOMENTS SELAMA HIDUP Haha 😂</span></div>
           <div class="tl-item"><span class="tb tb-navy">16.15–19.00</span><span class="ta">cooking, bathing, and eaaatt togethhaaa PART I 🍳</span></div>
           <div class="tl-item"><span class="tb tb-tan">19.30</span><span class="ta">Worship night yuhvuu~ 🙏</span></div>
         </div>
@@ -715,6 +747,95 @@
       </div>
     </div>
     </div><!-- end .day-blocks-grid -->
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       SECTION 5 · TRANSPORT
+  ══════════════════════════════════════════════════ -->
+  <section class="sec-content" id="transport">
+    <div class="sec-head-card reveal" style="transform:rotate(-0.6deg)">
+      <div class="washi washi-check"></div>
+      <div class="pin pin-red pin-lg"></div>
+      <p class="sec-label">naik apa?</p>
+      <p class="sec-title-txt">Kendaraan &amp; Peserta</p>
+      <p class="sec-title-sub">Plotting Keberangkatan · 30 Mei 2026</p>
+    </div>
+
+    <div class="sec-divider"><span class="sec-div-label">🚗 Kendaraan &amp; Peserta</span><div class="sec-div-line"></div></div>
+    <div class="transport-grid" style="margin-top:20px;">
+
+      <!-- Calya -->
+      <div class="veh-card reveal" style="transform:rotate(-1deg)">
+        <div style="position:absolute;top:-11px;height:22px;left:-8px;right:-8px;z-index:4;border-radius:2px;background:rgba(100,180,255,.55);background-image:repeating-linear-gradient(90deg,transparent 0,transparent 7px,rgba(255,255,255,.35) 7px,rgba(255,255,255,.35) 9px);"></div>
+        <div class="pin pin-red" style="width:22px;height:22px;top:-12px;left:50%;transform:translateX(-50%);position:absolute;z-index:5;"></div>
+        <div class="veh-header">🚗 Calya · Aziz</div>
+        <div class="veh-body">
+          <span class="veh-time">10:00</span>
+          <span class="veh-loc">📍 <a href="https://maps.app.goo.gl/kSqmAXJGEWK6LrBe8" target="_blank" rel="noopener">McD Downtown Alam Sutera</a></span>
+          <ul class="veh-list">
+            <li>Aziz</li>
+            <li>Nia</li>
+            <li>Danya</li>
+            <li>Jason</li>
+            <li>Jason</li>
+            <li>Joana</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Sigra -->
+      <div class="veh-card reveal" style="transform:rotate(1.2deg);transition-delay:.08s">
+        <div style="position:absolute;top:-11px;height:22px;left:-8px;right:-8px;z-index:4;border-radius:2px;background:rgba(255,255,255,.4);background-image:repeating-linear-gradient(90deg,transparent 0,transparent 6px,rgba(74,144,220,.5) 6px,rgba(74,144,220,.5) 8px),repeating-linear-gradient(0deg,transparent 0,transparent 6px,rgba(74,144,220,.5) 6px,rgba(74,144,220,.5) 8px);"></div>
+        <div class="pin pin-blue" style="width:22px;height:22px;top:-12px;left:50%;transform:translateX(-50%);position:absolute;z-index:5;"></div>
+        <div class="veh-header">🚗 Sigra · Jonathan</div>
+        <div class="veh-body">
+          <span class="veh-time">10:00</span>
+          <span class="veh-loc">📍 <a href="https://maps.app.goo.gl/kSqmAXJGEWK6LrBe8" target="_blank" rel="noopener">McD Downtown Alam Sutera</a></span>
+          <ul class="veh-list">
+            <li>Jonathan</li>
+            <li>Kenji</li>
+            <li>Devini</li>
+            <li>Yessica</li>
+            <li>Pampam</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Wuling -->
+      <div class="veh-card reveal" style="transform:rotate(-0.8deg);transition-delay:.16s">
+        <div style="position:absolute;top:-11px;height:22px;left:-8px;right:-8px;z-index:4;border-radius:2px;background:rgba(100,180,255,.55);background-image:repeating-linear-gradient(90deg,transparent 0,transparent 7px,rgba(255,255,255,.35) 7px,rgba(255,255,255,.35) 9px);"></div>
+        <div class="pin pin-green" style="width:22px;height:22px;top:-12px;left:50%;transform:translateX(-50%);position:absolute;z-index:5;"></div>
+        <div class="veh-header">🚐 Wuling · MQB</div>
+        <div class="veh-body">
+          <span class="veh-time veh-siang">Berangkat Siang</span>
+          <ul class="veh-list">
+            <li>MQB</li>
+            <li>Evelyn</li>
+            <li>Abel</li>
+            <li class="veh-cargo">🧳 Barang bawaan</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- GrabCar -->
+      <div class="veh-card reveal" style="transform:rotate(0.6deg);transition-delay:.24s">
+        <div style="position:absolute;top:-11px;height:22px;left:-8px;right:-8px;z-index:4;border-radius:2px;background:rgba(255,255,255,.4);background-image:repeating-linear-gradient(90deg,transparent 0,transparent 6px,rgba(74,144,220,.5) 6px,rgba(74,144,220,.5) 8px),repeating-linear-gradient(0deg,transparent 0,transparent 6px,rgba(74,144,220,.5) 6px,rgba(74,144,220,.5) 8px);"></div>
+        <div class="pin pin-yellow" style="width:22px;height:22px;top:-12px;left:50%;transform:translateX(-50%);position:absolute;z-index:5;"></div>
+        <div class="veh-header">🚕 GrabCar · Saepul</div>
+        <div class="veh-body">
+          <span class="veh-time">10:00</span>
+          <span class="veh-loc">📍 <a href="https://maps.app.goo.gl/kSqmAXJGEWK6LrBe8" target="_blank" rel="noopener">McD Downtown Alam Sutera</a></span>
+          <ul class="veh-list">
+            <li>Saepul</li>
+            <li>Danny</li>
+            <li>Jeremy</li>
+            <li>Davin</li>
+            <li>Hendy</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
   </section>
 
   <!-- ══════════════════════════════════════════════════
@@ -1011,7 +1132,7 @@
 
   /* ══════════ SECTION NAV HIGHLIGHT (desktop) ══════════ */
   if(!IS_TOUCH){
-    const SEC_IDS=['hero','info','bring','rundown'];
+    const SEC_IDS=['hero','info','bring','rundown','transport'];
     const snavItems=document.querySelectorAll('.snav-item');
     function updateNav(){
       // active = last section whose top is above 45% of viewport
