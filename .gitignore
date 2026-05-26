@@ -1,1 +1,27 @@
-# add large files to ignore if needed later
+# Dependencies
+node_modules/
+
+# Playwright
+test-results/
+playwright-report/
+.playwright/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Env
+.env
+.env.local
+
+# Photos (real photos stay local, samples tracked)
+photos/*.jpg
+photos/*.jpeg
+photos/*.png
+photos/*.webp
