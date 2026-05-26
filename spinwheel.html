@@ -43,13 +43,6 @@
       letter-spacing:2px;text-transform:uppercase;text-shadow:0 2px 8px rgba(0,0,0,.4);
       position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;
     }
-    .sw-admin-btn{
-      font-family:'Caveat',cursive;font-size:.9rem;color:rgba(255,255,255,.55);
-      background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);
-      padding:5px 14px;border-radius:4px;cursor:pointer;transition:all .2s;
-      display:flex;align-items:center;gap:5px;
-    }
-    .sw-admin-btn:hover{color:#fff;background:rgba(255,255,255,.14);}
 
     /* LAYOUT */
     .sw-main{
@@ -250,7 +243,7 @@
   <header class="sw-header">
     <a class="sw-back" href="index.html">← Back</a>
     <div class="sw-htitle">🎡 Spin The Wheel</div>
-    <button class="sw-admin-btn" id="adminOpenBtn">⚙ Admin</button>
+    <div id="adminOpenBtn" style="display:none"></div>
   </header>
 
   <!-- MAIN 3-COL -->
@@ -286,7 +279,7 @@
       <div class="name-card" id="nameCard">
         <div class="washi wb"></div>
         <div class="pin py"></div>
-        <div class="name-lbl">Peserta Sekarang</div>
+        <div class="name-lbl" id="nameLbl">Terpilih!</div>
         <div class="name-txt" id="nameTxt">–</div>
       </div>
 
@@ -413,7 +406,6 @@
 const STORAGE_KEY = 'ynp_spinwheel_v1';
 const ADMIN_PASS  = 'ynp2026';
 let WHEEL_SIZE  = 400;
-const NG          = 4; // num groups
 
 const GC = [
   { wheel:'#e53935', light:'#fff8f8', dot:'#c62828' },
@@ -453,47 +445,57 @@ function drawWheel(rot){
   if(!cv)return;
   const ctx=cv.getContext('2d');
   const sz=cv.width, cx=sz/2, cy=sz/2, r=cx-Math.round(sz*.035);
-  const sc=sz/400; // scale factor relative to 400px base design
-  const sa=2*Math.PI/NG;
+  const sc=sz/400;
+  const queue=data.session.queue;
+  const n=queue.length;
   ctx.clearRect(0,0,sz,sz);
 
   // shadow
   ctx.save();ctx.shadowColor='rgba(0,0,0,.45)';ctx.shadowBlur=22*sc;ctx.shadowOffsetY=6*sc;
   ctx.beginPath();ctx.arc(cx,cy,r+2,0,2*Math.PI);ctx.fillStyle='#222';ctx.fill();ctx.restore();
 
-  for(let i=0;i<NG;i++){
-    const a0=rot+i*sa, a1=a0+sa, am=a0+sa/2;
-    // fill
-    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,a0,a1);ctx.closePath();
-    ctx.fillStyle=GC[i].wheel;ctx.fill();
-    // shine
-    const sx=cx+Math.cos(am)*r*.32,sy=cy+Math.sin(am)*r*.32;
-    const g=ctx.createRadialGradient(sx,sy,0,cx,cy,r);
-    g.addColorStop(0,'rgba(255,255,255,.22)');g.addColorStop(.5,'rgba(255,255,255,.04)');g.addColorStop(1,'rgba(0,0,0,.14)');
-    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,a0,a1);ctx.closePath();ctx.fillStyle=g;ctx.fill();
-    // label
-    const tx=cx+Math.cos(am)*r*.62,ty=cy+Math.sin(am)*r*.62;
-    ctx.save();ctx.translate(tx,ty);ctx.rotate(am+Math.PI/2);ctx.textAlign='center';ctx.textBaseline='middle';
-    const name=data.groups[i]||'Kel.'+(i+1);
-    const words=name.split(' ');
-    const fs=Math.round(14*sc), lh=fs+Math.round(4*sc);
-    ctx.font=`bold ${fs}px "Titan One",serif`;
-    if(words.length>=3||(name.length>11&&words.length>=2)){
-      const h=Math.ceil(words.length/2),l1=words.slice(0,h).join(' '),l2=words.slice(h).join(' ');
-      ctx.fillStyle='rgba(0,0,0,.3)';ctx.fillText(l1,1,1-lh/2);ctx.fillText(l2,1,1+lh/2);
-      ctx.fillStyle='#fff';ctx.fillText(l1,0,-lh/2);ctx.fillText(l2,0,lh/2);
-    } else {
-      ctx.fillStyle='rgba(0,0,0,.3)';ctx.fillText(name,1,1);
-      ctx.fillStyle='#fff';ctx.fillText(name,0,0);
+  if(n===0){
+    // empty wheel
+    ctx.beginPath();ctx.arc(cx,cy,r,0,2*Math.PI);ctx.fillStyle='#5f7a9a';ctx.fill();
+    ctx.beginPath();ctx.arc(cx,cy,r,0,2*Math.PI);ctx.strokeStyle='rgba(255,255,255,.3)';ctx.lineWidth=5*sc;ctx.stroke();
+  } else {
+    const sa=2*Math.PI/n;
+    for(let i=0;i<n;i++){
+      const gc=GC[i%4];
+      const a0=rot+i*sa, a1=a0+sa, am=a0+sa/2;
+      ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,a0,a1);ctx.closePath();
+      ctx.fillStyle=gc.wheel;ctx.fill();
+      // shine
+      const sx=cx+Math.cos(am)*r*.32,sy=cy+Math.sin(am)*r*.32;
+      const g=ctx.createRadialGradient(sx,sy,0,cx,cy,r);
+      g.addColorStop(0,'rgba(255,255,255,.22)');g.addColorStop(.5,'rgba(255,255,255,.04)');g.addColorStop(1,'rgba(0,0,0,.14)');
+      ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,a0,a1);ctx.closePath();ctx.fillStyle=g;ctx.fill();
+      // label
+      const tx=cx+Math.cos(am)*r*.62,ty=cy+Math.sin(am)*r*.62;
+      ctx.save();ctx.translate(tx,ty);ctx.rotate(am+Math.PI/2);ctx.textAlign='center';ctx.textBaseline='middle';
+      const fullName=data.participants[queue[i]].name;
+      const name=n>8?fullName.split(' ')[0]:fullName; // first name only when crowded
+      const fs=Math.max(7,Math.round(Math.min(14,14*4/n)*sc));
+      const lh=fs+Math.round(3*sc);
+      ctx.font=`bold ${fs}px "Titan One",serif`;
+      const words=name.split(' ');
+      if(words.length>=2&&n<=8){
+        const h=Math.ceil(words.length/2),l1=words.slice(0,h).join(' '),l2=words.slice(h).join(' ');
+        ctx.fillStyle='rgba(0,0,0,.3)';ctx.fillText(l1,1,1-lh/2);ctx.fillText(l2,1,1+lh/2);
+        ctx.fillStyle='#fff';ctx.fillText(l1,0,-lh/2);ctx.fillText(l2,0,lh/2);
+      } else {
+        ctx.fillStyle='rgba(0,0,0,.3)';ctx.fillText(name,1,1);
+        ctx.fillStyle='#fff';ctx.fillText(name,0,0);
+      }
+      ctx.restore();
     }
-    ctx.restore();
+    // dividers
+    for(let i=0;i<n;i++){const a=rot+i*sa;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r);ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=2.5*sc;ctx.stroke();}
+    // outer ring
+    ctx.beginPath();ctx.arc(cx,cy,r,0,2*Math.PI);ctx.strokeStyle='rgba(255,255,255,.45)';ctx.lineWidth=5*sc;ctx.stroke();
+    // notch dots
+    for(let i=0;i<n;i++){const a=rot+i*sa;ctx.beginPath();ctx.arc(cx+Math.cos(a)*r,cy+Math.sin(a)*r,Math.round(6*sc),0,2*Math.PI);ctx.fillStyle='#fffef7';ctx.fill();}
   }
-  // dividers
-  for(let i=0;i<NG;i++){const a=rot+i*sa;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r);ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=2.5*sc;ctx.stroke();}
-  // outer ring
-  ctx.beginPath();ctx.arc(cx,cy,r,0,2*Math.PI);ctx.strokeStyle='rgba(255,255,255,.45)';ctx.lineWidth=5*sc;ctx.stroke();
-  // notch dots
-  for(let i=0;i<NG;i++){const a=rot+i*sa;ctx.beginPath();ctx.arc(cx+Math.cos(a)*r,cy+Math.sin(a)*r,Math.round(6*sc),0,2*Math.PI);ctx.fillStyle='#fffef7';ctx.fill();}
   // hub
   const hr=Math.round(22*sc);
   const hg=ctx.createRadialGradient(cx-4*sc,cy-4*sc,2,cx,cy,hr);hg.addColorStop(0,'#5080c8');hg.addColorStop(1,'#1a3a6a');
@@ -523,13 +525,15 @@ function resizeWheel(){
    SPIN MATH
 ═══════════════════════════════════════════ */
 function segAtPointer(rot){
+  const n=data.session.queue.length||1;
   const r=((rot%(2*Math.PI))+2*Math.PI)%(2*Math.PI);
   const rel=((3*Math.PI/2-r)%(2*Math.PI)+2*Math.PI)%(2*Math.PI);
-  return Math.floor(rel/(2*Math.PI/NG))%NG;
+  return Math.floor(rel/(2*Math.PI/n))%n;
 }
 
 function calcTarget(curRot, tSeg){
-  const sa=2*Math.PI/NG;
+  const n=data.session.queue.length||1;
+  const sa=2*Math.PI/n;
   const base=3*Math.PI/2-tSeg*sa-sa/2;
   let tm=((base%(2*Math.PI))+2*Math.PI)%(2*Math.PI);
   tm+=((Math.random()-.5)*sa*.65); // jitter
@@ -609,10 +613,12 @@ function doSpin(targetSeg, onDone){
 
 function startSpin(){
   const sess=data.session;
-  if(sess.currentIdx===null||spinning)return;
-  const p=data.participants[sess.currentIdx];
-  spinSt={assigned:p.group, alternative:altGroup(p.group), retryCount:0, displayGroup:p.group};
-  doSpin(spinSt.assigned, ()=>{
+  if(sess.queue.length===0||spinning)return;
+  const tSeg=Math.floor(Math.random()*sess.queue.length);
+  const pidx=sess.queue[tSeg];
+  const p=data.participants[pidx];
+  spinSt={queuePos:tSeg, pidx, assigned:p.group, alternative:altGroup(p.group), retryCount:0, displayGroup:p.group};
+  doSpin(tSeg, ()=>{
     spinSt.displayGroup=spinSt.assigned;
     showResult();
     fanfare();
@@ -620,39 +626,43 @@ function startSpin(){
 }
 
 function doRetry(){
-  if(spinning||!spinSt)return;
-  spinSt.retryCount++;
-  const target = spinSt.retryCount%2===1 ? spinSt.alternative : spinSt.assigned;
-  spinSt.displayGroup = target;
-  doSpin(target, ()=>{
+  if(spinning)return;
+  const sess=data.session;
+  if(sess.queue.length===0)return;
+  const tSeg=Math.floor(Math.random()*sess.queue.length);
+  const pidx=sess.queue[tSeg];
+  const p=data.participants[pidx];
+  spinSt={queuePos:tSeg, pidx, assigned:p.group, alternative:altGroup(p.group), retryCount:(spinSt?spinSt.retryCount+1:1), displayGroup:p.group};
+  doSpin(tSeg, ()=>{
+    spinSt.displayGroup=spinSt.assigned;
     showResult();
-    if(spinSt.retryCount%2===0) fanfare();
   });
 }
 
 function doConfirm(){
   if(spinning||!spinSt)return;
   const sess=data.session;
-  sess.done.push({pidx:sess.currentIdx, cGroup:spinSt.assigned});
-  // remove from queue
-  sess.queue=sess.queue.filter(i=>i!==sess.currentIdx);
+  const pname=data.participants[spinSt.pidx].name;
+  sess.done.push({pidx:spinSt.pidx, cGroup:spinSt.assigned});
+  sess.queue=sess.queue.filter(i=>i!==spinSt.pidx);
+  sess.currentIdx=sess.queue.length>0?sess.queue[0]:null;
   burst(GC[spinSt.assigned].dot);
-  showToast('✓ Masuk '+data.groups[spinSt.assigned]+'!');
+  showToast('✓ '+pname+' → '+data.groups[spinSt.assigned]+'!');
   spinSt=null;
-  // advance
-  if(sess.queue.length>0){
-    sess.currentIdx=sess.queue[0];
-  } else {
-    sess.currentIdx=null;
-  }
+  wheelRot=0;
   save();
+  document.getElementById('resultArea').classList.add('hidden');
+  document.getElementById('nameTxt').textContent='–';
   renderUI();
+  drawWheel(wheelRot);
 }
 
 function altGroup(g){const o=[0,1,2,3].filter(i=>i!==g);return o[~~(Math.random()*o.length)];}
 
 function showResult(){
   const g=spinSt.displayGroup;
+  const pname=data.participants[spinSt.pidx].name;
+  document.getElementById('nameTxt').textContent=pname;
   const badge=document.getElementById('resultBadge');
   badge.textContent='🎉 '+data.groups[g]+'! 🎉';
   badge.style.background=GC[g].wheel;
@@ -739,30 +749,22 @@ function renderCenter(){
   const sess=data.session;
   const nameEl=document.getElementById('nameTxt');
   const spinBtn=document.getElementById('spinBtn');
-  const resultArea=document.getElementById('resultArea');
   const allDone=document.getElementById('allDone');
 
-  // check all done
-  if(sess.currentIdx===null&&sess.done.length===data.participants.length&&data.participants.length>0){
+  // all done
+  if(data.participants.length>0&&sess.done.length===data.participants.length){
     nameEl.textContent='–';spinBtn.disabled=true;
-    resultArea.classList.add('hidden');allDone.classList.remove('hidden');return;
+    allDone.classList.remove('hidden');return;
   }
   allDone.classList.add('hidden');
 
-  if(sess.currentIdx!==null){
-    const p=data.participants[sess.currentIdx];
-    if(nameEl.textContent!==p.name){
-      nameEl.textContent=p.name;
-      nameEl.classList.remove('pop');void nameEl.offsetWidth;nameEl.classList.add('pop');
-    }
-    spinBtn.disabled=spinning;
+  if(data.participants.length===0){
+    nameEl.textContent='Belum ada peserta di-input';
+    spinBtn.disabled=true;
   } else {
-    nameEl.textContent='–';spinBtn.disabled=true;
-    if(data.participants.length===0){
-      nameEl.textContent='Tambah peserta di Admin';
-    }
+    if(!spinSt) nameEl.textContent='–';
+    spinBtn.disabled=spinning||sess.queue.length===0;
   }
-  // keep result area as-is (only hidden/shown by spin logic)
 }
 
 /* ═══════════════════════════════════════════
@@ -862,7 +864,7 @@ function addParticipant(){
   data.participants.push({name,group});
   initSession();save();
   document.getElementById('addName').value='';
-  renderAdminContent();renderUI();
+  renderAdminContent();renderUI();drawWheel(wheelRot);
   showToast('Ditambah: '+name);
 }
 
@@ -874,7 +876,7 @@ function deleteParticipant(pidx){
     .filter(d=>d.pidx!==pidx)
     .map(d=>({...d,pidx:d.pidx>pidx?d.pidx-1:d.pidx}));
   data.participants=newP;
-  initSession();save();renderAdminContent();renderUI();
+  initSession();save();renderAdminContent();renderUI();drawWheel(wheelRot);
 }
 
 function importBulk(){
@@ -900,7 +902,7 @@ function importBulk(){
     });
   }
   if(added){
-    initSession();save();renderAdminContent();renderUI();
+    initSession();save();renderAdminContent();renderUI();drawWheel(wheelRot);
     document.getElementById('importTa').value='';
     showToast(`+${added} peserta diimport`);
   } else {
@@ -919,16 +921,18 @@ function resetSession(){
   if(!confirm('Reset sesi? Semua konfirmasi kelompok dihapus, peserta masuk antrian lagi.'))return;
   data.session={queue:[],currentIdx:null,done:[]};
   spinSt=null;
-  initSession();save();renderUI();renderAdminContent();
+  initSession();save();renderUI();drawWheel(wheelRot);renderAdminContent();
   document.getElementById('resultArea').classList.add('hidden');
+  document.getElementById('nameTxt').textContent='–';
   showToast('Sesi direset');
 }
 
 function clearAllData(){
   if(!confirm('Hapus SEMUA data peserta dan sesi? Tidak bisa dibatalkan.'))return;
   data={groups:data.groups,participants:[],session:{queue:[],currentIdx:null,done:[]}};
-  spinSt=null;save();renderUI();renderAdminContent();
+  spinSt=null;wheelRot=0;save();renderUI();drawWheel(wheelRot);renderAdminContent();
   document.getElementById('resultArea').classList.add('hidden');
+  document.getElementById('nameTxt').textContent='–';
   showToast('Data dihapus');
 }
 
@@ -944,7 +948,7 @@ document.getElementById('spinBtn').addEventListener('click',startSpin);
 document.getElementById('retryBtn').addEventListener('click',doRetry);
 document.getElementById('confirmBtn').addEventListener('click',doConfirm);
 
-document.getElementById('adminOpenBtn').addEventListener('click',openAdmin);
+if(window.location.pathname==='/spinwheel/admin')openAdmin();
 document.getElementById('adminClose').addEventListener('click',closeAdmin);
 document.getElementById('adminOverlay').addEventListener('click',e=>{if(e.target===document.getElementById('adminOverlay'))closeAdmin();});
 
